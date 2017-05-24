@@ -24,9 +24,9 @@ public:
 	void init_trasf_matrix(Params &base_step_params);
 	void set_sites(glm::mat4 &rot_matrix);
 
-	const glm::vec4 &centre() const { return _centre; }
-	const glm::vec4 &phosphate_53() const { return _phosphate_53; }
-	const glm::vec4 &phosphate_35() const { return _phosphate_35; }
+	glm::vec3 centre() const { return _centre; }
+	glm::vec3 phosphate_53() const { return _phosphate_53; }
+	glm::vec3 phosphate_35() const { return _phosphate_35; }
 
 private:
 	glm::mat4 _trasf_matrix;

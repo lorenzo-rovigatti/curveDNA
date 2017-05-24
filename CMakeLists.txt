@@ -66,6 +66,7 @@ SET(curveDNA_SOURCES
 	main.cpp
 	BasePair.cpp
 	ParameterMap.cpp
+	Sequence.cpp
 )
 
 ADD_EXECUTABLE(${exe_name} ${curveDNA_SOURCES})

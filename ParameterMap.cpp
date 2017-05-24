@@ -33,8 +33,8 @@ ParameterMap::~ParameterMap() {
 
 }
 
-Params &ParameterMap::operator[](std::string &key) {
-	return _map[key];
+const Params &ParameterMap::operator[](std::string &key) const {
+	return _map.at(key);
 }
 
 } /* namespace curveDNA */

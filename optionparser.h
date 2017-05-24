@@ -214,6 +214,8 @@
 #ifndef OPTIONPARSER_H_
 #define OPTIONPARSER_H_
 
+#include <stdio.h>
+
 /** @brief The namespace of The Lean Mean C++ Option Parser. */
 namespace option
 {

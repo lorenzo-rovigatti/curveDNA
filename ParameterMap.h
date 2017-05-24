@@ -34,7 +34,7 @@ public:
 	ParameterMap();
 	virtual ~ParameterMap();
 
-	Params &operator[](std::string &key);
+	const Params &operator[](std::string &key) const;
 private:
 	std::unordered_map<std::string, Params> _map;
 };

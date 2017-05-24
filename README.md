@@ -29,10 +29,10 @@ After the compilation stage the curveDNA executable will be placed in the build/
 	--help, -h
           Print usage and exit
 	--mgl, -m
-          Print the final configuration in mgl format for each given sequence file
+          Print one mgl file for each sequence file provided. If the name of the input file is sequence.txt, the output file will be named sequence.txt.mgl
 	--end-to-end, -e
-          Print the filename, distance between the centres of mass of the terminal base pairs and the length of a "perfect" double helix with the same number of nucleotides as the given sequence (both in nanometers) for each given sequence file
-
+          Print the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
+          
 ## Ackowledgements
 
 curveDNA uses

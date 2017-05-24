@@ -8,11 +8,14 @@
 #include "BasePair.h"
 #include "ParameterMap.h"
 
+#include "optionparser.h"
+#include "cl_args.h"
 #include "glm/glm.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 using namespace curveDNA;
@@ -21,17 +24,47 @@ bool is_valid(char c) {
 	return (c == 'A' || c == 'C' || c == 'G' || c == 'T');
 }
 
-void print_vec4_mgl(glm::vec4 &v, float r, string color) {
+void print_vec4_mgl(const glm::vec4 &v, float r, string color) {
 	cout << v[0] << " " << v[1] << " " << v[2] << " @ " << r << " C[" << color << "]" << endl;
 }
 
+void print_mgl(vector<BasePair> &bps, ostream &out) {
+	cout << ".Box:200,200,200" << endl;
+	for(auto bp : bps) {
+		print_vec4_mgl(bp.centre(), 0.15, "blue");
+		print_vec4_mgl(bp.phosphate_35(), 0.4, "red");
+		print_vec4_mgl(bp.phosphate_53(), 0.4, "red");
+	}
+}
+
 int main(int argc, char *argv[]) {
-	if(argc < 2) {
-		std::cerr << "Usage is " << argv[0] << " sequence_file";
+	if(argc > 0) {
+		argc--;
+		argv++;
+	}
+
+	option::Stats stats(usage, argc, argv);
+	option::Option *options = new option::Option[stats.options_max];
+	option::Option *buffer = new option::Option[stats.buffer_max];
+	option::Parser parser(usage, argc, argv, options, buffer);
+
+	if(parser.error()) return 1;
+
+	if(options[HELP] || argc == 0) {
+		option::printUsage(std::cerr, usage);
+		cerr << endl;
+		return 0;
+	}
+
+	// get the filenames
+	std::queue<std::string> input_files;
+	for (int i = 0; i < parser.nonOptionsCount(); ++i) input_files.push(string(parser.nonOption(i)));
+	if(input_files.size() == 0) {
+		cerr << "No sequence file given" << endl;
 		exit(1);
 	}
 
-	ifstream seq(argv[1]);
+	ifstream seq(input_files.front());
 	if(!seq.good()) {
 		cerr << "The file '" << argv[1] << "' is unreadable";
 		exit(1);
@@ -51,7 +84,6 @@ int main(int argc, char *argv[]) {
 				// brace (universal) initialisation (c++11 only)
 				string base_step { last_c, upper_c };
 				Params base_step_params = params[base_step];
-//				cout << base_step << " " << base_step_params.direction << endl;
 				BasePair new_bp;
 				new_bp.init_trasf_matrix(base_step_params);
 				bps.emplace_back(new_bp);
@@ -61,26 +93,18 @@ int main(int argc, char *argv[]) {
 			cerr << "WARNING: Invalid character '" << c << "'";
 		}
 	}
+	seq.close();
 
-	glm::vec4 base_centre(0.f, 0.f, 0.f, 1.f);
-	glm::vec4 base_phosphate_53(-0.0975688f, +0.9258795f, -0.18f, 1.f);
-	glm::vec4 base_phosphate_35(-0.0975688f, -0.9258795f, +0.18f, 1.f);
 	glm::mat4 inv_trasf_matrix(1.0f);
-
-	cout << ".Box:200,200,200" << endl;
-	for(auto bp : bps) {
-		glm::vec4 centre = inv_trasf_matrix * base_centre;
-		glm::vec4 phosphate_53 = inv_trasf_matrix * base_phosphate_53;
-		glm::vec4 phosphate_35 = inv_trasf_matrix * base_phosphate_35;
-
-		print_vec4_mgl(centre, 0.15, "blue");
-		print_vec4_mgl(phosphate_35, 0.4, "red");
-		print_vec4_mgl(phosphate_53, 0.4, "red");
-
+	for(auto &bp : bps) {
+		bp.set_sites(inv_trasf_matrix);
 		inv_trasf_matrix *= bp.inv_trasf_matrix();
 	}
 
-	seq.close();
+	if(options[PRINT_MGL]) print_mgl(bps, cout);
+	if(options[PRINT_EE]) {
+		cout << glm::distance(bps.front().centre(), bps.back().centre()) << endl;
+	}
 
 	return 0;
 }

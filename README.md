@@ -1,11 +1,17 @@
 # curveDNA
 
-curveDNA estimates the natural curvature of double-stranded DNA (dsDNA).
+curveDNA estimates the natural curvature of double-stranded DNA (dsDNA). The algorithm used is explained in 
+
+> [E.S. Shpigelman, E.N. Trifonov and A. Bolshoy, _Bioinformatics_ (1993) **9** (4): 435-440](https://academic.oup.com/bioinformatics/article-abstract/9/4/435/206911/CURVATURE-software-for-the-analysis-of-curved-DNA).
+
+The twist, wedge and direction of the wedge parameters are taken from
+
+> [S. Balasubramanian, F. Xu, and W. K. Olson, _Biophysical journal_ (2009) **96** (6): 2245-2260](http://www.cell.com/biophysj/supplemental/S0006-3495(09)00022-8)
 
 ## Features
 
 * Optionally prints out an mgl file containing the positions of each base-pair centre of mass and phosphates. mgl files can be visualised with [cogli1](https://sourceforge.net/projects/cogli1/)
-* Optionally prints out the distance (in nanometers) between the centres of mass of the terminal base pairs
+* Optionally prints out to the standard output the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
 
 ## Installation
 

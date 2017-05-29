@@ -25,8 +25,11 @@ public:
 	virtual ~Sequence();
 
 	void init(std::string &filename, ParameterMap &params);
+	void compute_bending(int bracket);
+
 	void print_mgl() const;
 	void print_ee() const;
+	void print_bending() const;
 
 private:
 	std::string _get_mgl_line(const glm::vec3 &v, float r, std::string color) const;

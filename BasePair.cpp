@@ -13,13 +13,20 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/constants.hpp"
 
+#include <iostream>
+
+using namespace std;
+
 namespace curveDNA {
 
 BasePair::BasePair() :
 				_trasf_matrix(1.0),
+				_lab_trasf_matrix(1.0),
 				_base_centre(0.f, 0.f, 0.f, 1.f),
 				_base_phosphate_53(-0.0975688f, +0.9258795f, 0.18f, 1.f),
-				_base_phosphate_35(-0.0975688f, -0.9258795f, 0.18f, 1.f) {
+				_base_phosphate_35(-0.0975688f, -0.9258795f, 0.18f, 1.f),
+				_normal(0.f, 0.f, 1.f),
+				_bending(0.f) {
 
 }
 
@@ -40,9 +47,16 @@ void BasePair::init_trasf_matrix(Params &base_step_params) {
 }
 
 void BasePair::set_sites(glm::mat4 &rot_matrix) {
+	_lab_trasf_matrix = rot_matrix;
 	_centre = rot_matrix * _base_centre;
 	_phosphate_53 = rot_matrix * _base_phosphate_53;
 	_phosphate_35 = rot_matrix * _base_phosphate_35;
+
+	_normal = glm::mat3(_lab_trasf_matrix)*_normal;
+}
+
+void BasePair::set_bending(float bending) {
+	_bending = bending;
 }
 
 } /* namespace curveDNA */

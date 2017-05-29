@@ -52,15 +52,14 @@ int main(int argc, char *argv[]) {
 	for(auto &filename : input_files) {
 		Sequence n_seq;
 		n_seq.init(filename, params);
+		n_seq.compute_bending(1);
 		seqs.emplace_back(n_seq);
 	}
 
-	if(options[PRINT_MGL]) {
-		for(auto &seq : seqs) seq.print_mgl();
-	}
-
-	if(options[PRINT_EE]) {
-		for(auto &seq : seqs) seq.print_ee();
+	for(auto &seq : seqs) {
+		if(options[PRINT_MGL]) seq.print_mgl();
+		if(options[PRINT_EE]) seq.print_ee();
+		if(options[PRINT_LOCAL_BENDING]) seq.print_bending();
 	}
 
 	return 0;

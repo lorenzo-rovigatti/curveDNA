@@ -13,6 +13,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "glm/gtx/vector_angle.hpp"
+
 using namespace std;
 
 namespace curveDNA {
@@ -74,6 +76,28 @@ void Sequence::init(std::string &filename, ParameterMap &params) {
 	_bounding_box = max_coords - min_coords;
 
 	_empty = false;
+}
+
+void Sequence::compute_bending(int bracket) {
+	for(int i = bracket; i < _bps.size() - bracket; i++) {
+		auto &bp_before = _bps[i - bracket];
+		auto &bp_after = _bps[i + bracket];
+		float bending_angle = glm::acos(glm::dot(bp_before.normal(), bp_after.normal()));
+		_bps[i].set_bending(bending_angle);
+	}
+}
+
+void Sequence::print_bending() const {
+	string bnd_filename = _filename + string(".bnd");
+	ofstream out(bnd_filename);
+
+	int i = 0;
+	for(auto bp : _bps) {
+		out << i << " " << bp.bending() << endl;
+		i++;
+	}
+
+	out.close();
 }
 
 void Sequence::print_mgl() const {

@@ -26,10 +26,13 @@ public:
 
 	void init(std::string &filename, ParameterMap &params);
 	void compute_bending(int bracket);
+	void compute_curvature(int bracket);
 
+	bool empty() const { return _empty; }
 	void print_mgl() const;
 	void print_ee() const;
 	void print_bending() const;
+	void print_curvature() const;
 
 private:
 	std::string _get_mgl_line(const glm::vec3 &v, float r, std::string color) const;

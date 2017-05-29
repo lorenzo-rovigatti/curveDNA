@@ -19,14 +19,18 @@ using namespace std;
 
 namespace curveDNA {
 
+const float BasePair::UNINITIALISED_ANGLE = -10.f;
+
 BasePair::BasePair() :
 				_trasf_matrix(1.0),
 				_lab_trasf_matrix(1.0),
 				_base_centre(0.f, 0.f, 0.f, 1.f),
-				_base_phosphate_53(-0.0975688f, +0.9258795f, 0.18f, 1.f),
-				_base_phosphate_35(-0.0975688f, -0.9258795f, 0.18f, 1.f),
+				_base_phosphate_53(-0.0975688f, +0.9258795f, -0.18f, 1.f),
+				_base_phosphate_35(-0.0975688f, -0.9258795f, +0.18f, 1.f),
 				_normal(0.f, 0.f, 1.f),
-				_bending(0.f) {
+				_avg_normal(0.f, 0.f, 1.f),
+				_bending(UNINITIALISED_ANGLE),
+				_curvature(UNINITIALISED_ANGLE) {
 
 }
 
@@ -46,17 +50,25 @@ void BasePair::init_trasf_matrix(Params &base_step_params) {
 	_inv_trasf_matrix = glm::inverse(_trasf_matrix);
 }
 
-void BasePair::set_sites(glm::mat4 &rot_matrix) {
-	_lab_trasf_matrix = rot_matrix;
-	_centre = rot_matrix * _base_centre;
-	_phosphate_53 = rot_matrix * _base_phosphate_53;
-	_phosphate_35 = rot_matrix * _base_phosphate_35;
+void BasePair::set_sites(glm::mat4 &lab_matrix) {
+	_lab_trasf_matrix = lab_matrix;
+	_centre = lab_matrix * _base_centre;
+	_phosphate_53 = lab_matrix * _base_phosphate_53;
+	_phosphate_35 = lab_matrix * _base_phosphate_35;
 
-	_normal = glm::mat3(_lab_trasf_matrix)*_normal;
+	_normal = glm::mat3(lab_matrix) * _normal;
 }
 
 void BasePair::set_bending(float bending) {
 	_bending = bending;
+}
+
+void BasePair::set_curvature(float curvature) {
+	_curvature = curvature;
+}
+
+void BasePair::set_avg_normal(glm::vec3 &avg_normal) {
+	_avg_normal = avg_normal;
 }
 
 } /* namespace curveDNA */

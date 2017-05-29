@@ -30,10 +30,7 @@ Sequence::~Sequence() {
 
 void Sequence::init(std::string &filename, ParameterMap &params) {
 	ifstream seq(filename);
-	if(!seq.good()) {
-		cerr << "The file '" << filename << "' is unreadable";
-		exit(1);
-	}
+	if(!seq.good()) throw string("File '") + filename + string("' is unreadable");
 	_filename = filename;
 
 	_perfect_length = 0.f;
@@ -59,6 +56,7 @@ void Sequence::init(std::string &filename, ParameterMap &params) {
 		}
 	}
 	seq.close();
+	if(!_bps.size()) throw string("File '") + filename + string("' does not contain a meaningful sequence");
 
 	glm::mat4 inv_trasf_matrix(1.0f);
 	glm::vec3 min_coords(1e10, 1e10, 1e10);
@@ -78,7 +76,45 @@ void Sequence::init(std::string &filename, ParameterMap &params) {
 	_empty = false;
 }
 
+void Sequence::compute_curvature(int bracket) {
+	if(_bps.size() < 2*bracket) return;
+
+	int normal_bracket = 5;
+	for(int bp = normal_bracket; bp < _bps.size() - normal_bracket; bp++) {
+		glm::vec3 avg_normal(0.f, 0.f, 0.f);
+
+		for(int j = -normal_bracket; j <= normal_bracket; j++) {
+			float factor = (abs(j) == normal_bracket) ? 0.5f : 1.f;
+			avg_normal += factor*_bps[bp + j].normal();
+		}
+		avg_normal /= 2*normal_bracket;
+		_bps[bp].set_avg_normal(avg_normal);
+	}
+
+	for(int bp = bracket + normal_bracket; bp < _bps.size() - (bracket + normal_bracket); bp++) {
+		auto &bp_before = _bps[bp - bracket];
+		auto &bp_after = _bps[bp + bracket];
+		float curvature = glm::acos(glm::dot(bp_before.avg_normal(), bp_after.avg_normal()));
+		_bps[bp].set_curvature(curvature);
+	}
+}
+
+void Sequence::print_curvature() const {
+	string crv_filename = _filename + string(".crv");
+	ofstream out(crv_filename);
+
+	int idx = 0;
+	for(auto bp : _bps) {
+		if(bp.curvature() != BasePair::UNINITIALISED_ANGLE) out << idx << " " << bp.curvature() << endl;
+		idx++;
+	}
+
+	out.close();
+}
+
 void Sequence::compute_bending(int bracket) {
+	if(_bps.size() < 2*bracket) return;
+
 	for(int i = bracket; i < _bps.size() - bracket; i++) {
 		auto &bp_before = _bps[i - bracket];
 		auto &bp_after = _bps[i + bracket];
@@ -91,10 +127,10 @@ void Sequence::print_bending() const {
 	string bnd_filename = _filename + string(".bnd");
 	ofstream out(bnd_filename);
 
-	int i = 0;
+	int idx = 0;
 	for(auto bp : _bps) {
-		out << i << " " << bp.bending() << endl;
-		i++;
+		if(bp.bending() != BasePair::UNINITIALISED_ANGLE) out << idx << " " << bp.bending() << endl;
+		idx++;
 	}
 
 	out.close();

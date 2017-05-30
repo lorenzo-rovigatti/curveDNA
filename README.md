@@ -2,11 +2,11 @@
 
 curveDNA estimates the natural curvature of double-stranded DNA (dsDNA). The algorithm used is explained in 
 
-> [E.S. Shpigelman, E.N. Trifonov and A. Bolshoy, _Bioinformatics_ (1993) **9** (4): 435-440](https://academic.oup.com/bioinformatics/article-abstract/9/4/435/206911/CURVATURE-software-for-the-analysis-of-curved-DNA).
+> [E. S. Shpigelman, E. N. Trifonov and A. Bolshoy, _Bioinformatics_ (1993) **9**, pp. 435-440](https://academic.oup.com/bioinformatics/article-abstract/9/4/435/206911/CURVATURE-software-for-the-analysis-of-curved-DNA).
 
 The twist, wedge and direction of the wedge parameters are taken from
 
-> [S. Balasubramanian, F. Xu, and W. K. Olson, _Biophysical journal_ (2009) **96** (6): 2245-2260](http://www.cell.com/biophysj/supplemental/S0006-3495(09)00022-8)
+> [W. K. Olson, A. A. Gorin, X-J. Lu, L. M. Hock and V. B. Zhurkin, _Proc. Natl. Acad. Sci. USA_ (1998) **95**, pp. 11163-11168](http://www.cell.com/biophysj/supplemental/S0006-3495(09)00022-8)
 
 ## Features
 
@@ -39,13 +39,14 @@ After the compilation stage the curveDNA executable will be placed in the build/
           Print one mgl file for each sequence file provided. If the name of the input file is sequence.txt, the output file will be named sequence.txt.mgl
 	--end-to-end, -e
           Print the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
-    --bending, -b
+    --bending[=1], -b
           Print the local bending of the sequence. The output filename is the input filename plus the .bnd extension. The optional argument sets the bracket value used to compute the local bending (defaults to 1)
-	--curvature, -c
+	--curvature[=15], -c
           Print the curvature of the sequence. The output filename is the input filename plus the .crv extension. The optional argument sets the bracket value used to compute the curvature (defaults to 15)
           
 ## Ackowledgements
 
-curveDNA uses
-* [The Lean Mean C++ Option Parser](http://optionparser.sourceforge.net/), written by Matthias S. Benkmann
-* The [OpenGL Mathematics (GLM)](http://glm.g-truc.net/0.9.8/index.html) library 
+* We thank [Elio Abbondanzieri](https://sites.google.com/site/abbondanzierilab/home) for providing information, papers and bits of code to help us getting started 
+* curveDNA uses
+	* [The Lean Mean C++ Option Parser](http://optionparser.sourceforge.net/), written by Matthias S. Benkmann
+	* The [OpenGL Mathematics (GLM)](http://glm.g-truc.net/0.9.8/index.html) library

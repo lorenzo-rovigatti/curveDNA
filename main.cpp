@@ -71,6 +71,17 @@ int main(int argc, char *argv[]) {
 	ParameterMap params;
 	vector<Sequence> seqs;
 
+	if(options[PARAMS]) {
+		string arg(options[PARAMS].arg);
+		if(arg == "b") params.set_model(ParameterMap::BOLSHOI);
+		else if(arg == "c") params.set_model(ParameterMap::CACCHIONE);
+		else if(arg == "o") params.set_model(ParameterMap::OLSON);
+		else {
+			cerr << "Unsupported model '" << arg << "'" << endl;
+			exit(1);
+		}
+	}
+
 	for(auto &filename : input_files) {
 		Sequence n_seq;
 		try {

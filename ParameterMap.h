@@ -31,12 +31,26 @@ struct Params {
 
 class ParameterMap {
 public:
+	enum {
+		OLSON,
+		BOLSHOI,
+		CACCHIONE,
+		NUMBER_OF_MODELS
+	};
+
 	ParameterMap();
 	virtual ~ParameterMap();
 
+	void set_model(int model);
+
 	const Params &operator[](std::string &key) const;
 private:
-	std::unordered_map<std::string, Params> _map;
+	int _model;
+	std::unordered_map<std::string, Params> _map[NUMBER_OF_MODELS];
+
+	void _init_Olson();
+	void _init_Bolshoi();
+	void _init_Cacchione();
 };
 
 } /* namespace curveDNA */

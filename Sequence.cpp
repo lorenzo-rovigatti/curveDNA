@@ -12,7 +12,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <math.h>
 
+#include "glm/ext.hpp"
 #include "glm/gtx/vector_angle.hpp"
 
 using namespace std;
@@ -61,14 +63,17 @@ void Sequence::init(std::string &filename, ParameterMap &params) {
 	glm::mat4 inv_trasf_matrix(1.0f);
 	glm::vec3 min_coords(1e10, 1e10, 1e10);
 	glm::vec3 max_coords(-1e10, -1e10, -1e10);
+	int i = 0;
 	for(auto &bp : _bps) {
 		bp.set_sites(inv_trasf_matrix);
+		bp.set_index(i);
 		glm::vec3 centre = bp.centre();
 		for(int c = 0; c < 3; c++) {
 			min_coords[c] = glm::min(min_coords[c], centre[c]);
 			max_coords[c] = glm::max(max_coords[c], centre[c]);
 		}
 		inv_trasf_matrix *= bp.inv_trasf_matrix();
+		i++;
 	}
 
 	_bounding_box = max_coords - min_coords;
@@ -150,6 +155,119 @@ void Sequence::print_mgl() const {
 	out.close();
 }
 
+void Sequence::print_tep() const {
+	double nm_in_SUL = 1./2.5;
+	double bp_per_segment = 7.4;
+
+	// open the topology and conf files
+	string top_filename = _filename + string(".top");
+	ofstream top_out(top_filename);
+
+	string conf_filename = _filename + string(".conf");
+	ofstream conf_out(conf_filename);
+	// print the headers
+	int N_segments = _bps.size() / bp_per_segment;
+	int box_size = N_segments + 2;
+	conf_out << "t = 0" << endl;
+	conf_out << "b = " << box_size << " " << box_size << " " << box_size << endl;
+	conf_out << "E = -1 -1"<<endl;//prints -1 since it doesn't really compute the energy.
+	
+	top_out << N_segments << " " << 1 <<endl;
+	top_out << N_segments << endl;
+	
+	
+	glm::vec3 zero(0.,0.,0.);
+	// generate the 
+	int prev_segment = 0;
+	int nbp = _bps.size();
+	std::vector<glm::vec3> u1(nbp), f1(nbp), pos(nbp);
+	std::vector<double> beta_0(nbp), theta0(nbp);
+	/// CUSTOM POSITION ASSIGNMENT - remove after debug
+	pos[0] = glm::vec3(0.,0.,0.);
+	pos[1] = glm::vec3(1.,0.,0.);
+	pos[2] = glm::vec3(2.,0.,0.);
+	pos[3] = glm::vec3(2.+sqrt(2),sqrt(2.),0.);
+	//nbp = 4;
+
+
+	/// CUSTOM POSITION ASSIGNMENT
+	for(int i = 0; i < nbp; i++){
+		auto bp = _bps[i];
+		int curr_segment = int(bp.index() / bp_per_segment); 
+		float part = fmod(bp.index(), bp_per_segment);//float is needed or glm will complain when performing vector-scalar multiplication
+		//printf("bau %d\n",bp.index());
+		if (bp.index() == 0){ 
+//			printf("first one %f %f %f\n",bp.centre[0],bp.centre[1],bp.centre[2]);
+			pos[prev_segment] = bp.centre();
+		}
+		if (prev_segment != curr_segment){
+		// compute the position of the interpolation point
+			pos[curr_segment] = part * _bps[i-1].centre() + (1 - part) * bp.centre();
+		// compute the orientation of the previous segment
+			//the u1 vector is simply the normalised displacement
+			u1[prev_segment] = glm::normalize(pos[curr_segment] - pos[prev_segment]);
+			//the f1 vector is initialised arbitrarily, and then is simply rotated to follow u1
+			glm::vec3 &u1_p = u1[prev_segment];
+			glm::vec3 &f1_p = f1[prev_segment];
+			glm::vec3  v1_p = glm::cross(u1_p, f1_p);
+			glm::vec3 &u1_pp = u1[prev_segment - 1];
+			glm::vec3 &f1_pp = f1[prev_segment - 1];
+			glm::vec3  v1_pp = glm::cross(u1_pp, f1_pp);
+			
+			if (curr_segment == 1){
+				if (u1_p.x != 0) f1_p = glm::normalize( glm::vec3( 0., -u1_p.z / u1_p.y, 1.) );
+				else f1_p = glm::normalize( glm::vec3( -u1_p.z / u1_p.x, 0., 1.) );
+			} 
+			else if (curr_segment > 1){ 
+				glm::vec3 axis = glm::cross(u1_pp, u1_p);
+				double angle = asin(glm::l2Norm(axis));
+				double angle_alt = glm::angle(u1_pp, u1_p);
+				if ( fabs(angle - angle_alt) >0.5e-4 || angle * angle_alt < 0){
+					printf("Ah-ah!!! %lf %lf\n", angle, angle_alt);
+					exit(0);
+				}
+				axis = glm::normalize(axis);
+				f1_p = glm::rotate(f1_pp, (float)angle, axis);
+				// notice that the angle is actually -theta0
+				theta0[curr_segment - 2] = -angle*1;
+				// Relax all the excess twist
+				double A = glm::dot(f1_p, f1_pp) + glm::dot(v1_p, v1_pp);
+				double B = glm::dot(v1_p, f1_pp) + glm::dot(f1_p, v1_pp);
+				double gamma = 0.;
+				if (A >= 0) gamma = atan(B/A);
+				else gamma = atan(B/A) + M_PI;
+				f1_p = glm::rotate(f1_p, (float) gamma, u1_p);
+				// and the angle beta is actually the angle between f x u = -v and and the projections of u' on u_perp
+				glm::vec3 m_v1_pp = - glm::cross(f1_pp, u1_pp);
+				glm::vec3 up_proj = glm::normalize(u1_p - glm::dot( u1_p, u1_pp) * u1_pp);
+				glm::vec3 axis_2 = glm::cross(m_v1_pp, up_proj);
+				beta_0[curr_segment - 2] = glm::orientedAngle(m_v1_pp, up_proj, u1_p);
+
+			}
+			prev_segment = curr_segment;
+		}
+	}
+	// print the body of the configuration and topology
+	for(int i = 0; i < N_segments; i++){
+			conf_out << _get_conf_line(pos[i] * nm_in_SUL + glm::vec3(1.,1.,1.)*box_size*0.5, u1[i] , f1[i], zero, zero);
+			//check that everything is orthogonal
+			float dot = glm::dot(u1[i], f1[i]);
+			if (fabs(dot) > 1e-6){
+				//printf("ERROR: vectors u1[%d] and f1[%d], should be orthogonal, but they aren't.\n",);
+				std::cout << "ERROR: vectors u1["<<i<<"] = "<<u1[i].x<<" "<<u1[i].y<<" "<<u1[i].z<<" and f1["<<i<<"] = "<<f1[i].x<<" "<<f1[i].y<<" "<<f1[i].z<<" should be orthogonal, but they aren't."<<endl;
+				std::cout << "       their scalar product is"<<dot<<endl;
+				exit(-1);
+			}
+	}
+
+	for(int i = 0; i < N_segments; i++){
+			top_out << _get_top_line(i, theta0[i], beta_0[i]);
+	}
+
+	conf_out.close();
+	top_out.close();
+}
+
 void Sequence::print_ee() const {
 	cout << _filename << " " << glm::distance(_bps.front().centre(), _bps.back().centre()) << " " << _perfect_length << endl;
 }
@@ -157,6 +275,19 @@ void Sequence::print_ee() const {
 string Sequence::_get_mgl_line(const glm::vec3 &v, float r, string color) const {
 	stringstream ss;
 	ss << v[0] << " " << v[1] << " " << v[2] << " @ " << r << " C[" << color << "]" << endl;
+	return ss.str();
+}
+
+string Sequence::_get_conf_line(const glm::vec3 &p, const glm::vec3 &v1, const glm::vec3 &v3, const glm::vec3 &velocity = glm::vec3(0.,0.,0.), const glm::vec3 &omega = glm::vec3(0.,0.,0.)) const {
+	stringstream ss;
+	ss << p[0] << " " << p[1] << " " << p[2] << " " << v1[0] << " " << v1[1] << " " << v1[2] << " " << v3[0] << " " << v3[1] << " " << v3[2] << " " << velocity[0] << " " << velocity[1] << " " << velocity[2] << " " << omega[0] << " " << omega[1] << " " << omega[2]  <<  endl;
+	return ss.str();
+}
+
+string Sequence::_get_top_line( int i, double theta_0, double beta_0) const {
+	stringstream ss;
+	std::string default_string = "1 1 0.80 0.952319757 1.14813301";
+	ss << i << " " << default_string << " " << theta_0 << " " << beta_0 << endl;
 	return ss.str();
 }
 

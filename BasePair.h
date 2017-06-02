@@ -23,10 +23,12 @@ public:
 
 	void init_trasf_matrix(Params &base_step_params);
 	void set_sites(glm::mat4 &rot_matrix);
+	void set_index(int);
 	void set_bending(float bending);
 	void set_curvature(float curvature);
 	void set_avg_normal(glm::vec3 &avg_normal);
 
+	int index() const { return _index; };
 	const glm::mat4 &trasf_matrix() const { return _trasf_matrix; }
 	const glm::mat4 &inv_trasf_matrix() const { return _inv_trasf_matrix; }
 
@@ -49,6 +51,7 @@ private:
 	glm::vec4 _centre;
 	glm::vec4 _phosphate_53;
 	glm::vec4 _phosphate_35;
+	int _index;
 	glm::vec3 _normal;
 	glm::vec3 _avg_normal;
 

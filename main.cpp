@@ -71,6 +71,17 @@ int main(int argc, char *argv[]) {
 	ParameterMap params;
 	vector<Sequence> seqs;
 
+	if(options[PARAMS]) {
+		string arg(options[PARAMS].arg);
+		if(arg == "b") params.set_model(ParameterMap::BOLSHOI);
+		else if(arg == "c") params.set_model(ParameterMap::CACCHIONE);
+		else if(arg == "o") params.set_model(ParameterMap::OLSON);
+		else {
+			cerr << "Unsupported model '" << arg << "'" << endl;
+			exit(1);
+		}
+	}
+
 	for(auto &filename : input_files) {
 		Sequence n_seq;
 		try {
@@ -91,6 +102,10 @@ int main(int argc, char *argv[]) {
 			if(options[PRINT_LOCAL_BENDING]) seq.print_bending();
 			if(options[PRINT_CURVATURE]) seq.print_curvature();
 		}
+	}
+
+	if(options[PRINT_TEP]) {
+		for(auto &seq : seqs) seq.print_tep();
 	}
 
 	return 0;

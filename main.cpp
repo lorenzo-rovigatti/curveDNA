@@ -99,13 +99,10 @@ int main(int argc, char *argv[]) {
 		if(!seq.empty()) {
 			if(options[PRINT_MGL]) seq.print_mgl();
 			if(options[PRINT_EE]) seq.print_ee();
+			if(options[PRINT_TEP]) seq.print_tep();
 			if(options[PRINT_LOCAL_BENDING]) seq.print_bending();
 			if(options[PRINT_CURVATURE]) seq.print_curvature();
 		}
-	}
-
-	if(options[PRINT_TEP]) {
-		for(auto &seq : seqs) seq.print_tep();
 	}
 
 	return 0;

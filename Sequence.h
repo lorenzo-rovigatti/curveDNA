@@ -33,8 +33,8 @@ public:
 	void print_mgl() const;
 	void print_ee() const;
 	void print_tep() const;
- 	void print_bending() const;
- 	void print_curvature() const;
+	void print_bending() const;
+	void print_curvature() const;
 
 
 private:

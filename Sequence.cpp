@@ -182,15 +182,7 @@ void Sequence::print_tep() const {
 	int nbp = _bps.size();
 	std::vector<glm::vec3> u1(nbp), f1(nbp), pos(nbp);
 	std::vector<double> beta_0(nbp), theta0(nbp);
-	/// CUSTOM POSITION ASSIGNMENT - remove after debug
-	pos[0] = glm::vec3(0.,0.,0.);
-	pos[1] = glm::vec3(1.,0.,0.);
-	pos[2] = glm::vec3(2.,0.,0.);
-	pos[3] = glm::vec3(2.+sqrt(2),sqrt(2.),0.);
-	//nbp = 4;
 
-
-	/// CUSTOM POSITION ASSIGNMENT
 	for(int i = 0; i < nbp; i++){
 		auto bp = _bps[i];
 		int curr_segment = int(bp.index() / bp_per_segment); 

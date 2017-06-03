@@ -58,6 +58,7 @@ void BasePair::set_sites(glm::mat4 &lab_matrix) {
 
 	_normal = glm::mat3(lab_matrix) * _normal;
 }
+void BasePair::set_index(int index){ _index = index;}
 
 void BasePair::set_bending(float bending) {
 	_bending = bending;

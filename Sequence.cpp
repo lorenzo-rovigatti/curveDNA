@@ -239,6 +239,7 @@ void Sequence::print_tep() const {
 			conf_out << _get_conf_line(pos[i] * nm_in_SUL + glm::vec3(1.,1.,1.)*box_size*0.5, u1[i] , f1[i], zero, zero);
 			//check that everything is orthogonal
 			float dot = glm::dot(u1[i], f1[i]);
+
 			if (fabs(dot) > 1e-5){
 				//printf("ERROR: vectors u1[%d] and f1[%d], should be orthogonal, but they aren't.\n",);
 				std::cout << "WARNING: vectors u1["<<i<<"] = "<<u1[i].x<<" "<<u1[i].y<<" "<<u1[i].z<<" and f1["<<i<<"] = "<<f1[i].x<<" "<<f1[i].y<<" "<<f1[i].z<<" should be orthogonal, but they aren't."<<endl;

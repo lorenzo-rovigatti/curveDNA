@@ -54,3 +54,4 @@ After the compilation stage the curveDNA executable will be placed in the build/
 * curveDNA uses
 	* [The Lean Mean C++ Option Parser](http://optionparser.sourceforge.net/), written by Matthias S. Benkmann
 	* The [OpenGL Mathematics (GLM)](http://glm.g-truc.net/0.9.8/index.html) library
+* The development of this software has been partially supported by the European Commission through the Marie Skłodowska−Curie Fellowship No. 702298-DELTAS.

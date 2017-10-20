@@ -23,7 +23,6 @@ struct Params {
 			rise_per_residue(rpr), twist(t), wedge(w), direction(d) {
 	}
 
-
 	Params() : Params(0., 0., 0., 0.) {
 
 	}

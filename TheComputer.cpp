@@ -20,7 +20,10 @@ using namespace std;
 TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options) :
 				_bending_bracket(1),
 				_curvature_bracket(15),
-				_options(options) {
+				_options(options),
+				_mode(ANALYSE_SEQS),
+				_N(-1),
+				_tries(1000) {
 	if(options[PRINT_LOCAL_BENDING] && options[PRINT_LOCAL_BENDING].arg != NULL) {
 		_bending_bracket = atoi(options[PRINT_LOCAL_BENDING].arg);
 		cerr << "Setting the bending bracket to " << _bending_bracket << endl;
@@ -39,13 +42,22 @@ TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options
 		}
 	}
 
-	// get the filenames
-	for(int i = 0; i < parser.nonOptionsCount(); ++i)
-		_input_files.push_back(string(parser.nonOption(i)));
+	if(options[FIND]) {
+		_mode = FIND_SEQS;
+		_N = atoi(options[FIND].arg);
+		if(parser.nonOptionsCount()) {
+			cerr << "WARNING: Non-option arguments are not considered when --find is used" << endl;
+		}
+	}
+	else {
+		// get the filenames out of the parser
+		for(int i = 0; i < parser.nonOptionsCount(); ++i)
+			_input_files.push_back(string(parser.nonOption(i)));
 
-	if(_input_files.size() == 0) {
-		cerr << "No sequence file given" << endl;
-		exit(1);
+		if(_input_files.size() == 0) {
+			cerr << "No sequence file given" << endl;
+			exit(1);
+		}
 	}
 
 	if(options[PARAMS]) {
@@ -64,11 +76,11 @@ TheComputer::~TheComputer() {
 
 }
 
-void TheComputer::compute() {
+void TheComputer::_analyse() {
 	for(auto &filename : _input_files) {
 		Sequence n_seq;
 		try {
-			n_seq.init(filename, _params);
+			n_seq.init_from_file(filename, _params);
 			n_seq.compute_bending(_bending_bracket);
 			n_seq.compute_curvature(_curvature_bracket);
 			_seqs.emplace_back(n_seq);
@@ -77,6 +89,17 @@ void TheComputer::compute() {
 			cerr << s << endl;
 		}
 	}
+}
+
+void TheComputer::_find() {
+	for(int i = 0; i < _tries; i++) {
+
+	}
+}
+
+void TheComputer::compute() {
+	if(_mode == FIND_SEQS) _find();
+	else _analyse();
 }
 
 void TheComputer::print_output() {

@@ -17,7 +17,8 @@ enum options {
 	PRINT_TEP,
 	PRINT_LOCAL_BENDING,
 	PRINT_CURVATURE,
-	PARAMS
+	PARAMS,
+	FIND
 };
 
 const option::Descriptor usage[] = {
@@ -27,7 +28,8 @@ const option::Descriptor usage[] = {
 {PRINT_TEP             , 0, "t", "tep"           , option::Arg::None,     "  --tep, -t\n          Print the TEP topology file for the given sequence and the minimum energy configuration" },
 {PRINT_LOCAL_BENDING   , 0, "b", "bending"       , option::Arg::Optional, "  --bending[=1], -b\n          Print the local bending of the sequence. The output filename is the input filename plus the .bnd extension. The optional argument sets the bracket value used to compute the local bending (defaults to 1)" },
 {PRINT_CURVATURE       , 0, "c", "curvature"     , option::Arg::Optional, "  --curvature[=15], -c\n          Print the curvature of the sequence. The output filename is the input filename plus the .crv extension. The optional argument sets the bracket value used to compute the curvature (defaults to 15)" },
-{PARAMS                , 0, "", "params"     	 , option::Arg::Required, "  --params=SET,\n          Select the set of parameters to be used in the calculations. SET can be b (Bolshoy et al, PNAS 1991), c (Cacchione et al, Biochem 1989) or o (default value, Balasubramanian et al, Biophys. J. 2009)" },
+{PARAMS                , 0, "",  "params"     	 , option::Arg::Required, "  --params=SET,\n          Select the set of parameters to be used in the calculations. SET can be b (Bolshoy et al, PNAS 1991), c (Cacchione et al, Biochem 1989) or o (default value, Balasubramanian et al, Biophys. J. 2009)" },
+{FIND                  , 0, "f", "find"    	 	 , option::Arg::Required, "  --find=N,\n          Find the sequence of size N with the shortest end-to-end. For now we will try to optimise the sequence randomly" },
 {0,0,0,0,0,0}
 };
 

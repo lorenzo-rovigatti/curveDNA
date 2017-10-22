@@ -30,17 +30,15 @@ Sequence::~Sequence() {
 
 }
 
-void Sequence::init(std::string &filename, ParameterMap &params) {
-	ifstream seq(filename);
-	if(!seq.good()) throw string("File '") + filename + string("' is unreadable");
-	_filename = filename;
+void Sequence::init_from_sequence(std::string &sequence, ParameterMap &params) {
+	stringstream sequence_stream(sequence);
 
 	_perfect_length = 0.f;
 	// this is signed so that it can store a negative value
 	signed char last_c = -1;
-	while(seq.good()) {
+	while(sequence_stream.good()) {
 		char c;
-		seq.get(c);
+		sequence_stream.get(c);
 		char upper_c = toupper(c);
 		if(_is_valid(upper_c)) {
 			if(last_c != -1) {
@@ -58,8 +56,7 @@ void Sequence::init(std::string &filename, ParameterMap &params) {
 			cerr << "WARNING: Invalid character '" << c << "'" << endl;
 		}
 	}
-	seq.close();
-	if(!_bps.size()) throw string("File '") + filename + string("' does not contain a meaningful sequence");
+	if(!_bps.size()) throw string("String '") + sequence + string("' is not a meaningful sequence");
 
 	glm::mat4 inv_trasf_matrix(1.0f);
 	glm::vec3 min_coords(1e10, 1e10, 1e10);
@@ -80,6 +77,17 @@ void Sequence::init(std::string &filename, ParameterMap &params) {
 	_bounding_box = max_coords - min_coords;
 
 	_empty = false;
+}
+
+void Sequence::init_from_file(std::string &filename, ParameterMap &params) {
+	ifstream seq(filename);
+	if(!seq.good()) throw string("File '") + filename + string("' is unreadable");
+	_filename = filename;
+
+	std::string sequence((std::istreambuf_iterator<char>(seq)), std::istreambuf_iterator<char>());
+	seq.close();
+
+	init_from_sequence(sequence, params);
 }
 
 void Sequence::compute_curvature(int bracket) {

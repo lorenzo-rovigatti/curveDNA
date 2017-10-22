@@ -24,7 +24,8 @@ public:
 	Sequence();
 	virtual ~Sequence();
 
-	void init(std::string &filename, ParameterMap &params);
+	void init_from_sequence(std::string &sequence, ParameterMap &params);
+	void init_from_file(std::string &filename, ParameterMap &params);
 	void compute_bending(int bracket);
 	void compute_curvature(int bracket);
 
@@ -35,7 +36,6 @@ public:
 	void print_tep() const;
 	void print_bending() const;
 	void print_curvature() const;
-
 
 private:
 	std::string _get_mgl_line(const glm::vec3 &v, float r, std::string color) const;

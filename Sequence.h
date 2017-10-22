@@ -24,18 +24,23 @@ public:
 	Sequence();
 	virtual ~Sequence();
 
-	void init_from_sequence(std::string &sequence, ParameterMap &params);
-	void init_from_file(std::string &filename, ParameterMap &params);
+	void init_from_sequence(const std::string &sequence, ParameterMap &params);
+	void init_from_file(const std::string &filename, ParameterMap &params);
 	void compute_bending(int bracket);
 	void compute_curvature(int bracket);
+	void set_filename(const std::string &new_filename);
 
 	bool empty() const { return _empty; }
+	std::string filename() const { return _filename; }
+
+	float end_to_end() const;
 
 	void print_mgl() const;
 	void print_ee() const;
 	void print_tep() const;
 	void print_bending() const;
 	void print_curvature() const;
+	void print_sequence() const;
 
 private:
 	std::string _get_mgl_line(const glm::vec3 &v, float r, std::string color) const;
@@ -44,9 +49,10 @@ private:
 	bool _is_valid(char c) const;
 
 	bool _empty = true;
-	float _perfect_length;
+	float _perfect_length = 0.f;;
 	glm::vec3 _bounding_box;
 	std::string _filename;
+	std::string _sequence;
 	std::vector<BasePair> _bps;
 };
 

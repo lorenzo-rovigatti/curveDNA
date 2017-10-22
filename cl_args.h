@@ -18,7 +18,8 @@ enum options {
 	PRINT_LOCAL_BENDING,
 	PRINT_CURVATURE,
 	PARAMS,
-	FIND
+	FIND,
+	FIND_TRIES
 };
 
 const option::Descriptor usage[] = {
@@ -30,6 +31,7 @@ const option::Descriptor usage[] = {
 {PRINT_CURVATURE       , 0, "c", "curvature"     , option::Arg::Optional, "  --curvature[=15], -c\n          Print the curvature of the sequence. The output filename is the input filename plus the .crv extension. The optional argument sets the bracket value used to compute the curvature (defaults to 15)" },
 {PARAMS                , 0, "",  "params"     	 , option::Arg::Required, "  --params=SET,\n          Select the set of parameters to be used in the calculations. SET can be b (Bolshoy et al, PNAS 1991), c (Cacchione et al, Biochem 1989) or o (default value, Balasubramanian et al, Biophys. J. 2009)" },
 {FIND                  , 0, "f", "find"    	 	 , option::Arg::Required, "  --find=N,\n          Find the sequence of size N with the shortest end-to-end. For now we will try to optimise the sequence randomly" },
+{FIND_TRIES            , 0, "r", "tries"   	 	 , option::Arg::Required, "  --tries[=10000],\n          Number of attempts to be tried when optimising the sequence" },
 {0,0,0,0,0,0}
 };
 

@@ -19,14 +19,18 @@ public:
 	static const float UNINITIALISED_ANGLE;
 
 	BasePair();
+//	BasePair(const BasePair &other);
+//	BasePair(BasePair &&other);
 	virtual ~BasePair();
 
+	BasePair& operator=(const BasePair &rhs);
+
 	void init_trasf_matrix(Params &base_step_params);
-	void set_sites(glm::mat4 &rot_matrix);
+	void set_sites(const glm::mat4 &rot_matrix);
 	void set_index(int);
 	void set_bending(float bending);
 	void set_curvature(float curvature);
-	void set_avg_normal(glm::vec3 &avg_normal);
+	void set_avg_normal(const glm::vec3 &avg_normal);
 
 	int index() const { return _index; };
 	const glm::mat4 &trasf_matrix() const { return _trasf_matrix; }
@@ -51,12 +55,14 @@ private:
 	glm::vec4 _centre;
 	glm::vec4 _phosphate_53;
 	glm::vec4 _phosphate_35;
-	int _index;
+	int _index = -1;
 	glm::vec3 _normal;
 	glm::vec3 _avg_normal;
 
 	float _bending;
 	float _curvature;
+
+	void _init(const BasePair &other);
 };
 
 } /* namespace curveDNA */

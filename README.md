@@ -12,9 +12,10 @@ curveDNA supports three sets of twist, wedge and direction of the wedge paramete
 
 ## Features
 
-* Can print the local bending and curvature as defined in [D. S. Goodsell and R. E. Dickerson, _Nucleic Acid Research_ (1994) **22** (24): 5497-5503](https://academic.oup.com/nar/article-lookup/doi/10.1093/nar/22.24.5497)
-* Can print an mgl file containing the positions of each base-pair centre of mass and phosphates. mgl files can be visualised with [cogli1](https://sourceforge.net/projects/cogli1/)
-* Can print the standard output the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
+* It optionally prints the local bending and curvature as defined in [D. S. Goodsell and R. E. Dickerson, _Nucleic Acid Research_ (1994) **22** (24): 5497-5503](https://academic.oup.com/nar/article-lookup/doi/10.1093/nar/22.24.5497)
+* It optionally prints an mgl file containing the positions of each base-pair centre of mass and phosphates. mgl files can be visualised with [cogli1](https://sourceforge.net/projects/cogli1/)
+* It optionally prints the standard output the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
+* If given the --find N (with N being an integer), it will look for the sequence with the shortest end-to-end distance. For now, the code will randomly generate a certain number of sequences, compute their end-to-end distance and, after a certain number of attempts (set with --tries), output the shortest one
 
 ## Installation
 
@@ -38,15 +39,21 @@ After the compilation stage the curveDNA executable will be placed in the build/
 	--help, -h
           Print usage and exit
 	--mgl, -m
-          Print one mgl file for each sequence file provided. If the name of the input file is sequence.txt, the output file will be named sequence.txt.mgl
+          Print one mgl file for each sequence file provided. The output filename is the input filename plus the .mgl extension.
 	--end-to-end, -e
           Print the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
-    --bending[=1], -b
+	--tep, -t
+          Print the TEP topology file for the given sequence and the minimum energy configuration
+	--bending[=1], -b
           Print the local bending of the sequence. The output filename is the input filename plus the .bnd extension. The optional argument sets the bracket value used to compute the local bending (defaults to 1)
 	--curvature[=15], -c
           Print the curvature of the sequence. The output filename is the input filename plus the .crv extension. The optional argument sets the bracket value used to compute the curvature (defaults to 15)
 	--params=SET,
-			Select the set of parameters to be used in the calculations. SET can be b (Bolshoy et al, PNAS 1991), c (Cacchione et al, Biochem 1989) or o (default value, Balasubramanian et al, Biophys. J. 2009)
+          Select the set of parameters to be used in the calculations. SET can be b (Bolshoy et al, PNAS 1991), c (Cacchione et al, Biochem 1989) or o (default value, Balasubramanian et al, Biophys. J. 2009)
+	--find=N,
+          Find the sequence of size N with the shortest end-to-end. For now we will try to optimise the sequence randomly
+	--tries[=10000],
+          Number of attempts to be tried when optimising the sequence
           
 ## Ackowledgements
 

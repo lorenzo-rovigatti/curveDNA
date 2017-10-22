@@ -18,12 +18,8 @@ namespace curveDNA {
 using namespace std;
 
 TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options) :
-				_bending_bracket(1),
-				_curvature_bracket(15),
 				_options(options),
-				_mode(ANALYSE_SEQS),
-				_N(-1),
-				_tries(1000) {
+				_mode(ANALYSE_SEQS) {
 	if(options[PRINT_LOCAL_BENDING] && options[PRINT_LOCAL_BENDING].arg != NULL) {
 		_bending_bracket = atoi(options[PRINT_LOCAL_BENDING].arg);
 		cerr << "Setting the bending bracket to " << _bending_bracket << endl;
@@ -46,7 +42,10 @@ TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options
 		_mode = FIND_SEQS;
 		_N = atoi(options[FIND].arg);
 		if(parser.nonOptionsCount()) {
-			cerr << "WARNING: Non-option arguments are not considered when --find is used" << endl;
+			cerr << "WARNING: Non-option command-line arguments are not considered when --find is used" << endl;
+		}
+		if(options[FIND_TRIES]) {
+			_tries = atol(options[FIND_TRIES].arg);
 		}
 	}
 	else {
@@ -70,6 +69,9 @@ TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options
 			exit(1);
 		}
 	}
+
+	// TODO: initialise it from a command-line argument
+	_seed = 12345;
 }
 
 TheComputer::~TheComputer() {
@@ -92,9 +94,26 @@ void TheComputer::_analyse() {
 }
 
 void TheComputer::_find() {
+	srand48(_seed);
+	string sequence(_N, 0);
+	Sequence seq_attempt;
+	Sequence seq_best;
+	const string charset = "ACGT";
 	for(int i = 0; i < _tries; i++) {
+		// generate a random string
+		for(int j = 0; j < _N; j++) {
+			sequence[j] = charset[lrand48() % charset.size()];
+		}
 
+		seq_attempt.init_from_sequence(sequence, _params);
+		if(seq_best.empty() || seq_best.end_to_end() > seq_attempt.end_to_end()) {
+			seq_best = seq_attempt;
+		}
 	}
+
+	// TODO: be sure that the filename does not exist
+	seq_best.set_filename("best");
+	_seqs.emplace_back(seq_best);
 }
 
 void TheComputer::compute() {
@@ -105,6 +124,10 @@ void TheComputer::compute() {
 void TheComputer::print_output() {
 	for(auto &seq : _seqs) {
 		if(!seq.empty()) {
+			if(_mode == FIND_SEQS) {
+				cerr << "Printing the best sequence in '" << seq.filename() << ".seq'" << endl;
+				seq.print_sequence();
+			}
 			if(_options[PRINT_MGL]) seq.print_mgl();
 			if(_options[PRINT_EE]) seq.print_ee();
 			if(_options[PRINT_TEP]) seq.print_tep();

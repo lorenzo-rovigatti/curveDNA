@@ -38,10 +38,11 @@ private:
 	std::vector<option::Option> &_options;
 
 	int _mode;
-	int _bending_bracket;
-	int _curvature_bracket;
-	int _N;
-	int _tries;
+	int _bending_bracket = 1;
+	int _curvature_bracket = 15;
+	int _N = -1;
+	long long int _tries = 10000;
+	long int _seed;
 
 	void _analyse();
 	void _find();

@@ -17,12 +17,11 @@
 #include "glm/ext.hpp"
 #include "glm/gtx/vector_angle.hpp"
 
-using namespace std;
-
 namespace curveDNA {
 
-Sequence::Sequence() :
-				_perfect_length(0.f) {
+using namespace std;
+
+Sequence::Sequence() {
 
 }
 
@@ -30,10 +29,11 @@ Sequence::~Sequence() {
 
 }
 
-void Sequence::init_from_sequence(std::string &sequence, ParameterMap &params) {
+void Sequence::init_from_sequence(const string &sequence, ParameterMap &params) {
 	stringstream sequence_stream(sequence);
 
 	_perfect_length = 0.f;
+	_bps.clear();
 	// this is signed so that it can store a negative value
 	signed char last_c = -1;
 	while(sequence_stream.good()) {
@@ -75,11 +75,11 @@ void Sequence::init_from_sequence(std::string &sequence, ParameterMap &params) {
 	}
 
 	_bounding_box = max_coords - min_coords;
-
 	_empty = false;
+	_sequence = sequence;
 }
 
-void Sequence::init_from_file(std::string &filename, ParameterMap &params) {
+void Sequence::init_from_file(const string &filename, ParameterMap &params) {
 	ifstream seq(filename);
 	if(!seq.good()) throw string("File '") + filename + string("' is unreadable");
 	_filename = filename;
@@ -135,6 +135,10 @@ void Sequence::compute_bending(int bracket) {
 		float bending_angle = glm::acos(glm::dot(bp_before.normal(), bp_after.normal()));
 		_bps[i].set_bending(bending_angle);
 	}
+}
+
+void Sequence::set_filename(const string &new_filename) {
+	_filename = new_filename;
 }
 
 void Sequence::print_bending() const {
@@ -261,8 +265,21 @@ void Sequence::print_tep() const {
 	top_out.close();
 }
 
+float Sequence::end_to_end() const {
+	return glm::distance(_bps.front().centre(), _bps.back().centre());
+}
+
 void Sequence::print_ee() const {
-	cout << _filename << " " << glm::distance(_bps.front().centre(), _bps.back().centre()) << " " << _perfect_length << endl;
+	cout << _filename << " " << end_to_end() << " " << _perfect_length << endl;
+}
+
+void Sequence::print_sequence() const {
+	string seq_filename = _filename + string(".seq");
+	ofstream out(seq_filename);
+
+	out << _sequence << endl;
+
+	out.close();
 }
 
 string Sequence::_get_mgl_line(const glm::vec3 &v, float r, string color) const {

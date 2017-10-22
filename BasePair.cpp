@@ -34,8 +34,32 @@ BasePair::BasePair() :
 
 }
 
+//BasePair::BasePair(const BasePair &other) {
+//	_init(other);
+//}
+//
+//BasePair::BasePair(BasePair &&other) {
+//	_init(other);
+//}
+
 BasePair::~BasePair() {
 
+}
+
+BasePair& BasePair::operator=(const BasePair &rhs) {
+	_init(rhs);
+	return *this;
+}
+
+void BasePair::_init(const BasePair &other) {
+	_trasf_matrix = other._trasf_matrix;
+	_inv_trasf_matrix = other._inv_trasf_matrix;
+
+	set_sites(other._lab_trasf_matrix);
+	set_index(other._index);
+	set_bending(other._bending);
+	set_curvature(other._curvature);
+	set_avg_normal(other._avg_normal);
 }
 
 void BasePair::init_trasf_matrix(Params &base_step_params) {
@@ -50,7 +74,7 @@ void BasePair::init_trasf_matrix(Params &base_step_params) {
 	_inv_trasf_matrix = glm::inverse(_trasf_matrix);
 }
 
-void BasePair::set_sites(glm::mat4 &lab_matrix) {
+void BasePair::set_sites(const glm::mat4 &lab_matrix) {
 	_lab_trasf_matrix = lab_matrix;
 	_centre = lab_matrix * _base_centre;
 	_phosphate_53 = lab_matrix * _base_phosphate_53;
@@ -68,7 +92,7 @@ void BasePair::set_curvature(float curvature) {
 	_curvature = curvature;
 }
 
-void BasePair::set_avg_normal(glm::vec3 &avg_normal) {
+void BasePair::set_avg_normal(const glm::vec3 &avg_normal) {
 	_avg_normal = avg_normal;
 }
 

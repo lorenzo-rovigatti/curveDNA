@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <algorithm>
 
 namespace curveDNA {
 
@@ -19,7 +20,8 @@ using namespace std;
 
 TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options) :
 				_options(options),
-				_mode(ANALYSE_SEQS) {
+				_mode(ANALYSE_SEQS),
+				_algorithm(ALG_MC) {
 	if(options[PRINT_LOCAL_BENDING] && options[PRINT_LOCAL_BENDING].arg != NULL) {
 		_bending_bracket = atoi(options[PRINT_LOCAL_BENDING].arg);
 		cerr << "Setting the bending bracket to " << _bending_bracket << endl;
@@ -46,6 +48,20 @@ TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options
 		}
 		if(options[FIND_TRIES]) {
 			_tries = atol(options[FIND_TRIES].arg);
+		}
+		if(options[FIND_ALGORITHM]) {
+			string new_algo(options[FIND_ALGORITHM].arg);
+			transform(new_algo.begin(), new_algo.end(), new_algo.begin(), ::tolower);
+			if(new_algo == "mc") {
+				_algorithm = ALG_MC;
+			}
+			else if(new_algo == "random") {
+				_algorithm = ALG_RANDOM;
+			}
+			else {
+				cerr << "Unsupported algorithm '" << options[FIND_ALGORITHM].arg << "'" << endl;
+				exit(1);
+			}
 		}
 	}
 	else {
@@ -86,10 +102,15 @@ void TheComputer::_analyse() {
 			n_seq.compute_bending(_bending_bracket);
 			n_seq.compute_curvature(_curvature_bracket);
 			_seqs.emplace_back(n_seq);
-		}
-		catch(string &s) {
+		} catch (string &s) {
 			cerr << s << endl;
 		}
+	}
+}
+
+void TheComputer::_set_random_sequence(std::string &sequence) {
+	for(int j = 0; j < sequence.size(); j++) {
+		sequence[j] = _charset[lrand48() % _charset.size()];
 	}
 }
 
@@ -98,11 +119,19 @@ void TheComputer::_find() {
 	string sequence(_N, 0);
 	Sequence seq_attempt;
 	Sequence seq_best;
-	const string charset = "ACGT";
+	_set_random_sequence(sequence);
 	for(int i = 0; i < _tries; i++) {
-		// generate a random string
-		for(int j = 0; j < _N; j++) {
-			sequence[j] = charset[lrand48() % charset.size()];
+		switch(_algorithm) {
+		case ALG_RANDOM: {
+			_set_random_sequence(sequence);
+			break;
+		}
+		case ALG_MC: {
+			sequence[lrand48() % _N] = _charset[lrand48() % _charset.size()];
+			break;
+		}
+		default:
+			break;
 		}
 
 		seq_attempt.init_from_sequence(sequence, _params);

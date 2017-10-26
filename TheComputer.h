@@ -32,12 +32,19 @@ private:
 		FIND_SEQS
 	};
 
+	enum {
+		ALG_MC,
+		ALG_RANDOM
+	};
+
 	ParameterMap _params;
 	std::vector<Sequence> _seqs;
 	std::vector<std::string> _input_files;
 	std::vector<option::Option> &_options;
+	const std::string _charset = "ACGT";
 
 	int _mode;
+	int _algorithm;
 	int _bending_bracket = 1;
 	int _curvature_bracket = 15;
 	int _N = -1;
@@ -45,6 +52,7 @@ private:
 	long int _seed;
 
 	void _analyse();
+	void _set_random_sequence(std::string &sequence);
 	void _find();
 };
 

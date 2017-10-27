@@ -86,8 +86,8 @@ TheComputer::TheComputer(option::Parser &parser, vector<option::Option> &options
 		}
 	}
 
-	// TODO: initialise it from a command-line argument
-	_seed = 12345;
+	_seed = (options[SEED]) ? atol(options[SEED].arg) : -1;
+	if(_seed == -1) _seed = time(NULL);
 }
 
 TheComputer::~TheComputer() {

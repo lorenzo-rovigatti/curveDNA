@@ -20,7 +20,8 @@ enum options {
 	PARAMS,
 	FIND,
 	FIND_TRIES,
-	FIND_ALGORITHM
+	FIND_ALGORITHM,
+	SEED
 };
 
 const option::Descriptor usage[] = {
@@ -34,6 +35,7 @@ const option::Descriptor usage[] = {
 {FIND                  , 0, "f", "find"    	 	 , option::Arg::Required, "  --find=N, -f\n          Find the sequence of size N with the shortest end-to-end. The algorithm used for the optimisation is set with --algorithm" },
 {FIND_TRIES            , 0, "r", "tries"   	 	 , option::Arg::Required, "  --tries[=10000], -r\n          Number of attempts to be tried when optimising the sequence" },
 {FIND_ALGORITHM        , 0, "a", "algorithm" 	 , option::Arg::Required, "  --algorithm[=MC], -a\n          Algorithm used by the optimisation procedure. Possible algorithms are MC (default), random" },
+{SEED				   , 0, "s", "seed"		 	 , option::Arg::Required, "  --seed[=-1], -s\n          Seed for the pseudo random number generator. Defaults to -1 (which means time(NULL))" },
 {0,0,0,0,0,0}
 };
 

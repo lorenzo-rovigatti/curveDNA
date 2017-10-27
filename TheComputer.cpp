@@ -142,6 +142,8 @@ void TheComputer::_find() {
 
 	// TODO: be sure that the filename does not exist
 	seq_best.set_filename("best");
+	seq_best.compute_bending(_bending_bracket);
+	seq_best.compute_curvature(_curvature_bracket);
 	_seqs.emplace_back(seq_best);
 }
 

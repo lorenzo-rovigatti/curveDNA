@@ -34,6 +34,11 @@ void Sequence::init_from_sequence(const string &sequence, ParameterMap &params) 
 
 	_perfect_length = 0.f;
 	_bps.clear();
+
+	glm::mat4 inv_trasf_matrix(1.0f);
+	glm::vec3 min_coords(1e10, 1e10, 1e10);
+	glm::vec3 max_coords(-1e10, -1e10, -1e10);
+
 	// this is signed so that it can store a negative value
 	signed char last_c = -1;
 	while(sequence_stream.good()) {
@@ -47,6 +52,16 @@ void Sequence::init_from_sequence(const string &sequence, ParameterMap &params) 
 				Params base_step_params = params[base_step];
 				BasePair new_bp;
 				new_bp.init_trasf_matrix(base_step_params);
+
+				new_bp.set_sites(inv_trasf_matrix);
+				new_bp.set_index(_bps.size());
+				glm::vec3 centre = new_bp.centre();
+				for(int coord = 0; coord < 3; coord++) {
+					min_coords[coord] = glm::min(min_coords[coord], centre[coord]);
+					max_coords[coord] = glm::max(max_coords[coord], centre[coord]);
+				}
+				inv_trasf_matrix *= new_bp.inv_trasf_matrix();
+
 				_bps.emplace_back(new_bp);
 				_perfect_length += base_step_params.rise_per_residue;
 			}
@@ -58,25 +73,10 @@ void Sequence::init_from_sequence(const string &sequence, ParameterMap &params) 
 	}
 	if(!_bps.size()) throw string("String '") + sequence + string("' is not a meaningful sequence");
 
-	glm::mat4 inv_trasf_matrix(1.0f);
-	glm::vec3 min_coords(1e10, 1e10, 1e10);
-	glm::vec3 max_coords(-1e10, -1e10, -1e10);
-	int i = 0;
-	for(auto &bp : _bps) {
-		bp.set_sites(inv_trasf_matrix);
-		bp.set_index(i);
-		glm::vec3 centre = bp.centre();
-		for(int c = 0; c < 3; c++) {
-			min_coords[c] = glm::min(min_coords[c], centre[c]);
-			max_coords[c] = glm::max(max_coords[c], centre[c]);
-		}
-		inv_trasf_matrix *= bp.inv_trasf_matrix();
-		i++;
-	}
-
 	_bounding_box = max_coords - min_coords;
 	_empty = false;
 	_sequence = sequence;
+//	cerr << _sequence << " " << end_to_end() << endl;
 }
 
 void Sequence::init_from_file(const string &filename, ParameterMap &params) {
@@ -158,11 +158,20 @@ void Sequence::print_mgl() const {
 	string mgl_filename = _filename + string(".mgl");
 	ofstream out(mgl_filename);
 
-	out << ".Box:" << 1.5 * _bounding_box.x << "," << 1.5 * _bounding_box.y << "," << 1.5 * _bounding_box.z << endl;
+	glm::vec3 com;
 	for(auto bp : _bps) {
-		out << _get_mgl_line(bp.centre(), 0.15, "blue");
-		out << _get_mgl_line(bp.phosphate_35(), 0.4, "red");
-		out << _get_mgl_line(bp.phosphate_53(), 0.4, "red");
+		com += bp.centre();
+	}
+	com /= _bps.size();
+
+	glm::vec3 mgl_box = 2.f*_bounding_box;
+	glm::vec3 shift = com - 0.5f*mgl_box;
+
+	out << ".Box:" << mgl_box.x << "," << mgl_box.y << "," << mgl_box.z << endl;
+	for(auto bp : _bps) {
+		out << _get_mgl_line(bp.centre() - shift, 0.15, "blue");
+		out << _get_mgl_line(bp.phosphate_35() - shift, 0.4, "red");
+		out << _get_mgl_line(bp.phosphate_53() - shift, 0.4, "red");
 	}
 
 	out.close();

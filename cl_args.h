@@ -31,9 +31,9 @@ const option::Descriptor usage[] = {
 {PRINT_LOCAL_BENDING   , 0, "b", "bending"       , option::Arg::Optional, "  --bending[=1], -b\n          Print the local bending of the sequence. The output filename is the input filename plus the .bnd extension. The optional argument sets the bracket value used to compute the local bending (defaults to 1)" },
 {PRINT_CURVATURE       , 0, "c", "curvature"     , option::Arg::Optional, "  --curvature[=15], -c\n          Print the curvature of the sequence. The output filename is the input filename plus the .crv extension. The optional argument sets the bracket value used to compute the curvature (defaults to 15)" },
 {PARAMS                , 0, "",  "params"     	 , option::Arg::Required, "  --params=SET,\n          Select the set of parameters to be used in the calculations. SET can be b (Bolshoy et al, PNAS 1991), c (Cacchione et al, Biochem 1989) or o (default value, Balasubramanian et al, Biophys. J. 2009)" },
-{FIND                  , 0, "f", "find"    	 	 , option::Arg::Required, "  --find=N,\n          Find the sequence of size N with the shortest end-to-end. The algorithm used for the optimisation is set with --algorithm" },
-{FIND_TRIES            , 0, "r", "tries"   	 	 , option::Arg::Required, "  --tries[=10000],\n          Number of attempts to be tried when optimising the sequence" },
-{FIND_ALGORITHM        , 0, "a", "algorithm" 	 , option::Arg::Required, "  --algorithm[=MC],\n          Algorithm used by the optimisation procedure. Possible algorithms are MC (default), random" },
+{FIND                  , 0, "f", "find"    	 	 , option::Arg::Required, "  --find=N, -f\n          Find the sequence of size N with the shortest end-to-end. The algorithm used for the optimisation is set with --algorithm" },
+{FIND_TRIES            , 0, "r", "tries"   	 	 , option::Arg::Required, "  --tries[=10000], -r\n          Number of attempts to be tried when optimising the sequence" },
+{FIND_ALGORITHM        , 0, "a", "algorithm" 	 , option::Arg::Required, "  --algorithm[=MC], -a\n          Algorithm used by the optimisation procedure. Possible algorithms are MC (default), random" },
 {0,0,0,0,0,0}
 };
 

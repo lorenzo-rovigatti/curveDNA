@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 namespace curveDNA {
 
@@ -37,6 +38,7 @@ public:
 
 	void print_mgl() const;
 	void print_ee() const;
+	void print_oxDNA() const;
 	void print_tep() const;
 	void print_bending() const;
 	void print_curvature() const;
@@ -54,6 +56,7 @@ private:
 	std::string _filename;
 	std::string _sequence;
 	std::vector<BasePair> _bps;
+	std::map<char, char> _complementary;
 };
 
 } /* namespace curveDNA */

@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <math.h>
+#include <algorithm>
 
 #include "glm/ext.hpp"
 #include "glm/gtx/vector_angle.hpp"
@@ -22,7 +23,10 @@ namespace curveDNA {
 using namespace std;
 
 Sequence::Sequence() {
-
+	_complementary['A'] = 'T';
+	_complementary['T'] = 'A';
+	_complementary['C'] = 'G';
+	_complementary['G'] = 'C';
 }
 
 Sequence::~Sequence() {
@@ -39,32 +43,30 @@ void Sequence::init_from_sequence(const string &sequence, ParameterMap &params) 
 	glm::vec3 min_coords(1e10, 1e10, 1e10);
 	glm::vec3 max_coords(-1e10, -1e10, -1e10);
 
-	// this is signed so that it can store a negative value
-	signed char last_c = -1;
+	// we place the first base as its n3 neighbour were an A
+	char last_c = 'A';
 	while(sequence_stream.good()) {
 		char c;
 		sequence_stream.get(c);
 		char upper_c = toupper(c);
 		if(_is_valid(upper_c)) {
-			if(last_c != -1) {
-				// brace (universal) initialisation (c++11 only)
-				string base_step { last_c, upper_c };
-				Params base_step_params = params[base_step];
-				BasePair new_bp;
-				new_bp.init_trasf_matrix(base_step_params);
+			// brace (universal) initialisation (c++11 and onwards)
+			string base_step { last_c, upper_c };
+			Params base_step_params = params[base_step];
+			BasePair new_bp;
+			new_bp.init_trasf_matrix(base_step_params);
 
-				new_bp.set_sites(inv_trasf_matrix);
-				new_bp.set_index(_bps.size());
-				glm::vec3 centre = new_bp.centre();
-				for(int coord = 0; coord < 3; coord++) {
-					min_coords[coord] = glm::min(min_coords[coord], centre[coord]);
-					max_coords[coord] = glm::max(max_coords[coord], centre[coord]);
-				}
-				inv_trasf_matrix *= new_bp.inv_trasf_matrix();
-
-				_bps.emplace_back(new_bp);
-				_perfect_length += base_step_params.rise_per_residue;
+			new_bp.set_sites(inv_trasf_matrix);
+			new_bp.set_index(_bps.size());
+			glm::vec3 centre = new_bp.centre();
+			for(int coord = 0; coord < 3; coord++) {
+				min_coords[coord] = glm::min(min_coords[coord], centre[coord]);
+				max_coords[coord] = glm::max(max_coords[coord], centre[coord]);
 			}
+			inv_trasf_matrix *= new_bp.inv_trasf_matrix();
+
+			_bps.emplace_back(new_bp);
+			_perfect_length += base_step_params.rise_per_residue;
 			last_c = upper_c;
 		}
 		else if(!isspace(c)) {
@@ -76,7 +78,6 @@ void Sequence::init_from_sequence(const string &sequence, ParameterMap &params) 
 	_bounding_box = max_coords - min_coords;
 	_empty = false;
 	_sequence = sequence;
-//	cerr << _sequence << " " << end_to_end() << endl;
 }
 
 void Sequence::init_from_file(const string &filename, ParameterMap &params) {
@@ -175,6 +176,38 @@ void Sequence::print_mgl() const {
 	}
 
 	out.close();
+}
+
+void Sequence::print_oxDNA() const {
+	string conf_filename = _filename + string(".conf");
+	ofstream conf_out(conf_filename);
+	// print the headers
+	int N_in_strand = _bps.size();
+	int N = 2*N_in_strand;
+	float box_size = N + 10.;
+	conf_out << "t = 0" << endl;
+	conf_out << "b = " << box_size << " " << box_size << " " << box_size << endl;
+	conf_out << "E = 0 0 0" << endl;
+
+	// print the topology
+	string top_filename = _filename + string(".top");
+	ofstream top_out(top_filename);
+	top_out << N << " " << 2 << endl;
+
+	for(int i = 0; i < N_in_strand; i++) {
+		int n3 = (i > 0) ? i - 1 : -1;
+		int n5 = (i < N_in_strand - 1) ? i + 1 : -1;
+		top_out << 1 << " " << _sequence[i] << " " << n3 << " " << n5 << endl;
+	}
+
+	// the +1 takes care of the \0 char at the end
+	string reversed(_sequence.rbegin() + 1, _sequence.rend());
+	int base_idx = N_in_strand;
+	for(int i = 0; i < N_in_strand; i++) {
+		int n3 = (i > 0) ? base_idx + i - 1 : -1;
+		int n5 = (i < N_in_strand - 1) ? base_idx + i + 1 : -1;
+		top_out << 2 << " " << _complementary.at(reversed[i]) << " " << n3 << " " << n5 << endl;
+	}
 }
 
 void Sequence::print_tep() const {

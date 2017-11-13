@@ -162,6 +162,7 @@ void TheComputer::print_output() {
 			if(_options[PRINT_MGL]) seq.print_mgl();
 			if(_options[PRINT_EE]) seq.print_ee();
 			if(_options[PRINT_TEP]) seq.print_tep();
+			if(_options[PRINT_OXDNA]) seq.print_oxDNA();
 			if(_options[PRINT_LOCAL_BENDING]) seq.print_bending();
 			if(_options[PRINT_CURVATURE]) seq.print_curvature();
 		}

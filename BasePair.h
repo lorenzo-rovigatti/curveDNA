@@ -19,8 +19,6 @@ public:
 	static const float UNINITIALISED_ANGLE;
 
 	BasePair();
-//	BasePair(const BasePair &other);
-//	BasePair(BasePair &&other);
 	virtual ~BasePair();
 
 	BasePair& operator=(const BasePair &rhs);
@@ -41,6 +39,8 @@ public:
 	glm::vec3 phosphate_35() const { return _phosphate_35; }
 	glm::vec3 normal() const { return _normal; }
 	glm::vec3 avg_normal() const { return _avg_normal; }
+	glm::vec3 oxDNA_com(bool n5n3) const;
+	glm::mat3 oxDNA_matrix(bool n5n3) const;
 
 	float bending() const { return _bending; }
 	float curvature() const { return _curvature; }
@@ -53,8 +53,8 @@ private:
 	const glm::vec4 _base_phosphate_35;
 	const glm::vec4 _base_phosphate_53;
 	glm::vec4 _centre;
-	glm::vec4 _phosphate_53;
 	glm::vec4 _phosphate_35;
+	glm::vec4 _phosphate_53;
 	int _index = -1;
 	glm::vec3 _normal;
 	glm::vec3 _avg_normal;

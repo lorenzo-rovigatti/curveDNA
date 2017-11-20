@@ -179,25 +179,44 @@ void Sequence::print_mgl() const {
 }
 
 void Sequence::print_oxDNA() const {
+	const string empty_v3("0. 0. 0.");
+
 	string conf_filename = _filename + string(".conf");
 	ofstream conf_out(conf_filename);
-	// print the headers
+
 	int N_in_strand = _bps.size();
 	int N = 2*N_in_strand;
 	float box_size = N + 10.;
+
+	// configuration headers
 	conf_out << "t = 0" << endl;
 	conf_out << "b = " << box_size << " " << box_size << " " << box_size << endl;
 	conf_out << "E = 0 0 0" << endl;
 
-	// print the topology
 	string top_filename = _filename + string(".top");
 	ofstream top_out(top_filename);
+
+	// topology header
 	top_out << N << " " << 2 << endl;
 
+	// lambda function that converts a vec3 to a string
+	auto v3_to_str = [] (const glm::vec3 &v) {
+		stringstream ss;
+		ss << v[0] << " " << v[1] << " " << v[2];
+		return ss.str();
+	};
+
+	// we start by printing the complementary bases because we use the 5'-3' direction
 	for(int i = 0; i < N_in_strand; i++) {
 		int n3 = (i > 0) ? i - 1 : -1;
 		int n5 = (i < N_in_strand - 1) ? i + 1 : -1;
-		top_out << 1 << " " << _sequence[i] << " " << n3 << " " << n5 << endl;
+		top_out << 1 << " " << _complementary.at(_sequence[i]) << " " << n3 << " " << n5 << endl;
+
+		glm::vec3 com = _bps[i].oxDNA_com(false);
+		glm::mat3 orientation = glm::transpose(_bps[i].oxDNA_matrix(false));
+
+		conf_out << v3_to_str(com) << " " << v3_to_str(orientation[0]) << " " << v3_to_str(orientation[2]);
+		conf_out << " " << empty_v3 << " " << empty_v3 << " " << endl;
 	}
 
 	// the +1 takes care of the \0 char at the end
@@ -206,7 +225,13 @@ void Sequence::print_oxDNA() const {
 	for(int i = 0; i < N_in_strand; i++) {
 		int n3 = (i > 0) ? base_idx + i - 1 : -1;
 		int n5 = (i < N_in_strand - 1) ? base_idx + i + 1 : -1;
-		top_out << 2 << " " << _complementary.at(reversed[i]) << " " << n3 << " " << n5 << endl;
+		top_out << 2 << " " << reversed[i] << " " << n3 << " " << n5 << endl;
+
+		glm::vec3 com = _bps[i].oxDNA_com(true);
+		glm::mat3 orientation = glm::transpose(_bps[i].oxDNA_matrix(true));
+
+		conf_out << v3_to_str(com) << " " << v3_to_str(orientation[0]) << " " << v3_to_str(orientation[2]);
+		conf_out << " " << empty_v3 << " " << empty_v3 << " " << endl;
 	}
 }
 

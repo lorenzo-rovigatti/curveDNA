@@ -186,7 +186,7 @@ void Sequence::print_oxDNA() const {
 
 	int N_in_strand = _bps.size();
 	int N = 2*N_in_strand;
-	float box_size = N + 10.;
+	float box_size = N_in_strand + 10.;
 
 	// configuration headers
 	conf_out << "t = 0" << endl;
@@ -227,8 +227,9 @@ void Sequence::print_oxDNA() const {
 		int n5 = (i < N_in_strand - 1) ? base_idx + i + 1 : -1;
 		top_out << 2 << " " << reversed[i] << " " << n3 << " " << n5 << endl;
 
-		glm::vec3 com = _bps[i].oxDNA_com(true);
-		glm::mat3 orientation = glm::transpose(_bps[i].oxDNA_matrix(true));
+		int real_idx = N_in_strand - i - 1;
+		glm::vec3 com = _bps[real_idx].oxDNA_com(true);
+		glm::mat3 orientation = glm::transpose(_bps[real_idx].oxDNA_matrix(true));
 
 		conf_out << v3_to_str(com) << " " << v3_to_str(orientation[0]) << " " << v3_to_str(orientation[2]);
 		conf_out << " " << empty_v3 << " " << empty_v3 << " " << endl;

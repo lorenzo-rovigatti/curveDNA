@@ -13,9 +13,10 @@ curveDNA supports three sets of twist, wedge and direction of the wedge paramete
 ## Features
 
 * It optionally prints the local bending and curvature as defined in [D. S. Goodsell and R. E. Dickerson, _Nucleic Acid Research_ (1994) **22** (24): 5497-5503](https://academic.oup.com/nar/article-lookup/doi/10.1093/nar/22.24.5497)
+* It optionally prints a configuration/topology pair that can be used to start an [oxDNA](http://dna.physics.ox.ac.uk/) simulation
 * It optionally prints an mgl file containing the positions of each base-pair centre of mass and phosphates. mgl files can be visualised with [cogli1](https://sourceforge.net/projects/cogli1/)
 * It optionally prints the standard output the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
-* If given the --find N (with N being an integer), it will look for the sequence with the shortest end-to-end distance. For now, the code will randomly generate a certain number of sequences, compute their end-to-end distance and, after a certain number of attempts (set with --tries), output the shortest one
+* If given the --find N (with N being an integer), it will look for the sequence with the shortest end-to-end distance. The code will generate new configurations, compute their end-to-end distance and, after a certain number of attempts (set with --tries), output the shortest one. The minimisation can be performed either by generating random configurations (--algorithm=random) or by using point mutations (--algorithm=MC)
 
 ## Installation
 
@@ -32,7 +33,9 @@ After the compilation stage the curveDNA executable will be placed in the build/
 
 ## Usage
 
-```curveDNA [options] sequence_file```
+```
+curveDNA [options] sequence_file
+```
 
 ## Options
 
@@ -44,17 +47,23 @@ After the compilation stage the curveDNA executable will be placed in the build/
           Print the sequence filename, the end-to-end distance and the "perfect" end-to-end distance (that is, the end-to-end distance of a perfect double-stranded B-DNA of the same length)
 	--tep, -t
           Print the TEP topology file for the given sequence and the minimum energy configuration
+	--oxDNA, -o
+          Print a topology/configuration oxDNA pair of files for the given sequence
 	--bending[=1], -b
           Print the local bending of the sequence. The output filename is the input filename plus the .bnd extension. The optional argument sets the bracket value used to compute the local bending (defaults to 1)
 	--curvature[=15], -c
           Print the curvature of the sequence. The output filename is the input filename plus the .crv extension. The optional argument sets the bracket value used to compute the curvature (defaults to 15)
 	--params=SET,
           Select the set of parameters to be used in the calculations. SET can be b (Bolshoy et al, PNAS 1991), c (Cacchione et al, Biochem 1989) or o (default value, Balasubramanian et al, Biophys. J. 2009)
-	--find=N,
-          Find the sequence of size N with the shortest end-to-end. For now we will try to optimise the sequence randomly
-	--tries[=10000],
+	--find=N, -f
+          Find the sequence of size N with the shortest end-to-end. The algorithm used for the optimisation is set with --algorithm
+	--tries[=10000], -r
           Number of attempts to be tried when optimising the sequence
-          
+	--algorithm[=MC], -a
+          Algorithm used by the optimisation procedure. Possible algorithms are MC (default) and random
+	--seed[=-1], -s
+          Seed for the pseudo random number generator. Defaults to -1 (which means time(NULL))
+
 ## Ackowledgements
 
 * We thank [Elio Abbondanzieri](https://sites.google.com/site/abbondanzierilab/home) for providing information, papers and bits of code to help us getting started 

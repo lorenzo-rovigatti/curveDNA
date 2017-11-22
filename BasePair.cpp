@@ -10,6 +10,7 @@
 
 #include "ParameterMap.h"
 
+#include "glm/ext.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/constants.hpp"
 
@@ -92,27 +93,21 @@ void BasePair::set_avg_normal(const vec3 &avg_normal) {
 }
 
 vec3 BasePair::oxDNA_com(bool n5n3) const {
-	float dist_from_DS_centre = 0.2f + 0.4f;
+	const float oxDNA_to_nm = 0.8518f;
+
+	float dist_from_DS_centre = (0.2f + 0.4f) * oxDNA_to_nm;
 	if(n5n3) dist_from_DS_centre *= -1;
 	glm::vec4 base_com(0.f, dist_from_DS_centre, 0.f, 1.f);
 
-	return _lab_trasf_matrix * base_com;
+	return (_lab_trasf_matrix * base_com) / oxDNA_to_nm;
 }
 
 glm::mat3 BasePair::oxDNA_matrix(bool n5n3) const {
-	glm::mat3 lab_trasf_matrix_3x3(_lab_trasf_matrix);
-
-	vec3 a1 = lab_trasf_matrix_3x3 * vec3(0.f, 1.f, 0.f);
-	vec3 a3 = lab_trasf_matrix_3x3 * _normal;
-
-	if(!n5n3) {
-		a1 *= -1.f;
-		a3 *= -1.f;
-	}
-
-	vec3 a2 = glm::cross(a3, a1);
-
-	return glm::transpose(glm::mat3(a1, a2, a3));
+	glm::mat3 new_matrix(_lab_trasf_matrix);
+	new_matrix[0] = new_matrix[1];
+	new_matrix[1] = glm::cross(new_matrix[2], new_matrix[0]);
+	new_matrix = glm::transpose(new_matrix);
+	return (n5n3) ? new_matrix : -new_matrix;
 }
 
 } /* namespace curveDNA */

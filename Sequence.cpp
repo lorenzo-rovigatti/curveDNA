@@ -257,7 +257,7 @@ void Sequence::print_tep() const {
 	top_out << N_segments << endl;
 
 	glm::vec3 zero(0., 0., 0.);
-	// generate the 
+	// generate the strand
 	int prev_segment = 0;
 	int nbp = _bps.size();
 	std::vector<glm::vec3> u1(nbp), f1(nbp), pos(nbp);
@@ -272,7 +272,7 @@ void Sequence::print_tep() const {
 		}
 		if(prev_segment != curr_segment) {
 			// compute the position of the interpolation point
-			pos[curr_segment] = part * _bps[i - 1].centre() + (1 - part) * bp.centre() + glm::vec3(1., 1., 1.) * box_size * 0.5;
+			pos[curr_segment] = part * _bps[i - 1].centre() + (1 - part) * bp.centre();
 			// compute the orientation of the previous segment
 			//the u1 vector is simply the normalised displacement
 			u1[prev_segment] = glm::normalize(pos[curr_segment] - pos[prev_segment]);
@@ -285,8 +285,12 @@ void Sequence::print_tep() const {
 			glm::vec3 v1_pp = glm::cross(u1_pp, f1_pp);
 
 			if(curr_segment == 1) {
-				if(u1_p.x != 0) f1_p = glm::normalize(glm::vec3(0., -u1_p.z / u1_p.y, 1.));
-				else f1_p = glm::normalize(glm::vec3(-u1_p.z / u1_p.x, 0., 1.));
+				if(u1_p.x != 0) {
+					f1_p = glm::normalize(glm::vec3(0., -u1_p.z / u1_p.y, 1.));
+				}
+				else {
+					f1_p = glm::normalize(glm::vec3(-u1_p.z / u1_p.x, 0., 1.));
+				}
 			}
 			else if(curr_segment > 1) {
 				glm::vec3 axis = glm::cross(u1_pp, u1_p);
@@ -299,8 +303,12 @@ void Sequence::print_tep() const {
 				double A = glm::dot(f1_p, f1_pp) + glm::dot(v1_p, v1_pp);
 				double B = glm::dot(v1_p, f1_pp) + glm::dot(f1_p, v1_pp);
 				double gamma = 0.;
-				if(A >= 0) gamma = atan(B / A);
-				else gamma = atan(B / A) + M_PI;
+				if(A >= 0) {
+					gamma = atan(B / A);
+				}
+				else {
+					gamma = atan(B / A) + M_PI;
+				}
 				f1_p = glm::rotate(f1_p, (float) gamma, u1_p);
 				// and the angle beta is actually the angle between f x u = -v and and the projections of u' on u_perp
 				glm::vec3 m_v1_pp = -glm::cross(f1_pp, u1_pp);
@@ -321,7 +329,7 @@ void Sequence::print_tep() const {
 		if(fabs(dot) > 1e-5) {
 			//printf("ERROR: vectors u1[%d] and f1[%d], should be orthogonal, but they aren't.\n",);
 			std::cout << "WARNING: vectors u1[" << i << "] = " << u1[i].x << " " << u1[i].y << " " << u1[i].z << " and f1[" << i << "] = " << f1[i].x << " " << f1[i].y << " " << f1[i].z << " should be orthogonal, but they aren't." << endl;
-			std::cout << "       their scalar product is. You be the judge of whether that's orthogonal enough for you." << dot << endl;
+			std::cout << "       their scalar product is " << dot << ". You be the judge of whether that's orthogonal enough for you." << endl;
 		}
 	}
 
